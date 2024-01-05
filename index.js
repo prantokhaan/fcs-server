@@ -10,10 +10,10 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "football_competition_simulator"
+  host: "sql12.freesqldatabase.com",
+  user: "sql12674871",
+  password: "bULM2NF9ip",
+  database: "sql12674871",
 });
 
 app.post("/login", async (req, res) => {
@@ -648,7 +648,7 @@ app.post("/register", async (req, res) => {
   const password = req.body.password;
   const role = req.body.role;
 
-  const duplicateCheckQuery = `SELECT * FROM user WHERE user = ?`;
+  const duplicateCheckQuery = `SELECT * FROM users WHERE user = ?`;
 
   db.query(duplicateCheckQuery, [user], (error, results) => {
     if (error) {
@@ -665,7 +665,7 @@ app.post("/register", async (req, res) => {
           role: role,
         };
 
-        const insertQuery = `INSERT INTO user SET ?`;
+        const insertQuery = `INSERT INTO users SET ?`;
 
         db.query(insertQuery, newUser, (insertError, data) => {
           if (insertError) {
