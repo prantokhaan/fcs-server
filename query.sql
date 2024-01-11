@@ -1,3 +1,4 @@
+-- Active: 1696535786042@@127.0.0.1@3306@football_competition_simulator
 use football_competition_simulator;
 
 create table user(
@@ -25,6 +26,10 @@ drop table teams;
 
 select * from teams;
 
+update teams
+set teamName = "Ars", teamRating = 1
+where teamId = 8;
+
 create table leagues(
     leagueId int primary key AUTO_INCREMENT,
     leagueName varchar(30) not null unique,
@@ -46,6 +51,66 @@ drop table leagues;
 
 truncate leagues;
 
+
+
+create table players(
+    playerId int AUTO_INCREMENT PRIMARY key,
+    playerName varchar(50) not null,
+    playerImage varchar(500),
+    playerDOB date,
+    playerAge int,
+    playerPosition varchar(20)
+);
+
+drop table players;
+
+drop table teamplayers;
+
+DELIMITER //
+
+CREATE PROCEDURE CalculatePlayerAge(
+    IN playerDOBParam DATE,
+    OUT playerAgeResult INT
+)
+BEGIN
+    SET playerAgeResult = TIMESTAMPDIFF(YEAR, playerDOBParam, CURDATE());
+END //
+
+DELIMITER ;
+
+
+
+DELIMITER //
+
+CREATE TRIGGER calculateAgeBeforeUpdate
+BEFORE INSERT ON players
+FOR EACH ROW
+BEGIN
+    SET NEW.playerAge = TIMESTAMPDIFF(YEAR, NEW.playerDOB, CURDATE());
+END;
+CREATE TRIGGER calculateAgeBeforeInsert
+BEFORE UPDATE ON players
+FOR EACH ROW
+BEGIN
+    SET NEW.playerAge = TIMESTAMPDIFF(YEAR, NEW.playerDOB, CURDATE());
+END;
+//
+
+DELIMITER ;
+
+insert into players(playerName, playerDOB)
+values ("pranto", "2000-11-14");
+
+select * from players;
+
+
+create table teamPlayers(
+    teamPlayerId int AUTO_INCREMENT PRIMARY KEY,
+    playerId int,
+    teamId int,
+    FOREIGN KEY(playerId) REFERENCES players(playerId) on DELETE CASCADE,
+    FOREIGN KEY(teamId) REFERENCES teams(teamId) on DELETE CASCADE
+);
 
 
 create table leagueTeams(
@@ -326,4 +391,45 @@ CREATE INDEX idx_teamRating on teams(teamRating);
 
 show index from teams;
 
+
+select count(*) from teams;
+
+select * from teams where teamName like "%a%";
+
+select * from teams join leagueTeams on teams.teamId = leagueTeams.teamId
+where teams.teamName like "%?%";
+
+update leagues
+set leagueStatus = "Running"
+where leagueId = 16;
+
+use football_competition_simulator;
+
+
 select * from teams;
+
+SELECT
+    *
+FROM matches m
+JOIN teams t1 ON m.teamOneId = t1.teamId
+JOIN teams t2 ON m.teamTwoId = t2.teamId
+WHERE m.teamOneId = 19 OR m.teamTwoId = 19;
+
+
+select * from winners;
+
+SELECT *
+    FROM winners
+    INNER JOIN teams ON winners.teamId = teams.teamId
+    INNER JOIN leagues ON winners.leagueId = leagues.leagueId
+    WHERE winners.teamId = 21;
+
+insert into user(user, password, role)
+VALUES("admin", "admin", "admin");
+
+
+select * from teams;
+
+update users
+set role = "admin"
+where user = "admin";
